@@ -9,7 +9,7 @@ module OmniAuth
       option :client_options, {
         site:          AuthUrl,
         authorize_url: "#{AuthUrl}/oauth/authorize",
-        token_url:     "#{AuthUrl}/authentication"
+        token_url:     "#{AuthUrl}/authentication/access_token"
       }
 
       # whether we should make another API call to NORDEA to fetch
@@ -56,6 +56,9 @@ module OmniAuth
         end
       end
 
+      def callback_url
+        full_host + script_name + callback_path
+      end
       def authorize_params
         super.tap do |params|
           # Allow the scope to be determined dynamically based on the request.
@@ -78,12 +81,25 @@ module OmniAuth
           })
       end
 
+      def build_access_token
+
+        options.token_params.merge!(:headers => authorization_header)
+        super
+      end
+
       def missing_client_id?
         [nil, ""].include?(options.client_id)
       end
 
       def missing_client_secret?
         [nil, ""].include?(options.client_secret)
+      end
+
+      def authorization_header
+        {
+          "X-IBM-Client-Id" => options.client_id,
+          "X-IBM-Client-Secret" => options.client_secret,
+        }
       end
     end
   end
