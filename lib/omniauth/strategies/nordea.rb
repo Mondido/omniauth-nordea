@@ -4,12 +4,12 @@ module OmniAuth
   module Strategies
     class Nordea < OmniAuth::Strategies::OAuth2
       AuthUrl = ENV["NORDEA_AUTH_URL"] || "https://api.nordeaopenbanking.com/v1"
-      ApiUrl  = ENV["NORDEA_API_URL"]  || "https://api.nordeaopenbanking.com/v2"
+      ApiUrl  = ENV["NORDEA_API_URL"]  || "https://api.nordeaopenbanking.com/v1"
 
       option :client_options, {
         site:          AuthUrl,
         authorize_url: "#{AuthUrl}/oauth/authorize",
-        token_url:     "#{AuthUrl}/authentication/access_token"
+        token_url:     "#{AuthUrl}/authentication"
       }
 
       # whether we should make another API call to NORDEA to fetch
@@ -66,7 +66,7 @@ module OmniAuth
       end
 
       def account_info
-        @account_info ||= MultiJson.decode(nordea_api.get("/v2/account").body)
+        @account_info ||= MultiJson.decode(nordea_api.get("/v1/account").body)
       end
 
       def nordea_api
